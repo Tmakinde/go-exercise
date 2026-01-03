@@ -9,6 +9,8 @@ import (
 func main() {
 	fmt.Println(divisible(2000, 3200))
 	fmt.Println(factorial(8))
+	fmt.Printf("%v", "Squares: ")
+	fmt.Printf("%v", squaredNumber(5))
 }
 
 /*
@@ -41,6 +43,18 @@ func factorial(n int) int {
 	result := 1
 	for i := n; i >= 1; i-- {
 		result *= i
+	}
+	return result
+}
+
+/*
+With a given integral number n, write a program to generate a map that contains (i, i*i) such that is an integral number between 1 and n (both included),
+and then the program should print the map with representation of the value
+*/
+func squaredNumber(n int) map[int]int {
+	result := make(map[int] int)
+	for i := 1; i <= n; i++ {
+		result[i] = i * i
 	}
 	return result
 }
