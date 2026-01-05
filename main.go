@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"os"
+	"bufio"
 )
 
 func main() {
@@ -11,6 +13,10 @@ func main() {
 	fmt.Println(factorial(8))
 	fmt.Printf("%v", "Squares: ")
 	fmt.Printf("%v", squaredNumber(5))
+	basicFileOperations()
+	result, _ := readFromFile()
+	fmt.Println(result)
+	appendToFile()
 }
 
 /*
@@ -57,4 +63,62 @@ func squaredNumber(n int) map[int]int {
 		result[i] = i * i
 	}
 	return result
+}
+
+func basicFileOperations() {
+	// Create a file
+	file, err := os.Create("test.txt")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+	}
+	defer file.Close()
+	// Write to the file
+	// range of letter returns index and unicode code point of each letter
+	character := "Hello, World!"
+	for index, letter  := range character {
+		file.WriteString(string(letter))
+		if index < len(character) - 1 {
+			file.WriteString("\n")
+		}
+	}
+}
+
+func readFromFile() (string, error) {
+	file, err := os.Open("test.txt")
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+	var letters []string
+	reader := bufio.NewScanner(file)
+
+	for reader.Scan() {
+		letters = append(letters, reader.Text())
+	}
+	return strings.Join(letters, ""), nil
+}
+
+func appendToFile() (string, error) {
+	file, err := os.OpenFile("test.txt", os.O_APPEND|os.O_WRONLY, 0600)
+
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	numbers := []int{1,2,3,4,5}
+
+	fileinfo, _ := os.Stat("test.txt")
+	if fileinfo.Size() > 0 {
+		file.WriteString("\n")
+	}
+
+	for _, number := range numbers {
+		_, err := file.WriteString(strconv.Itoa(number) + "\n")
+		if err != nil {
+			return "something went wrong", err
+		}
+	}
+	return "Numbers appended successfully", nil
 }
