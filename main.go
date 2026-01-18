@@ -5,6 +5,7 @@ import (
 	"web-service-gin/users"
 	"github.com/gin-gonic/gin"
 	"web-service-gin/middleware"
+	"web-service-gin/filemanager"
 	"os"
 )
 
@@ -20,6 +21,7 @@ func main() {
 	{
 		protected.GET("/profile", users.GetProfile)
 		protected.PUT("/reset-password", users.UpdatePassword)
+		protected.POST("/upload", filemanager.UploadFileToS3)
 	}
 
 	// Run the server
