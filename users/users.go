@@ -30,7 +30,7 @@ func AddUser(ctx *gin.Context) {
 	hashedPassword, _ := hashPassword(newUser.Password)
 	_, err := DB.Exec(query, newUser.Username, hashedPassword)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
