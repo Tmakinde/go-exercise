@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"web-service-gin/utils"
 	"fmt"
+	"web-service-gin/metrics"
 )
 
 var DB, _ = database.ConnectToDatabase()
@@ -53,6 +54,7 @@ func Login(ctx *gin.Context) {
 
 	err := result.Scan(&hashedPassword)
 	if err == sql.ErrNoRows {
+		metrics.LoginAttemptsTotal.WithLabelValues("failure").Inc()
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	} else if err != nil {
@@ -66,15 +68,18 @@ func Login(ctx *gin.Context) {
 	)
 
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		metrics.LoginAttemptsTotal.WithLabelValues("failure").Inc()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+	metrics.LoginAttemptsTotal.WithLabelValues("success").Inc()
 	token, _ := utils.GenerateToken(loginUser.Username)
 	ctx.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func GetProfile(ctx *gin.Context) {
 	username, _ := ctx.Get("username")
+	metrics.ProfileRequestsTotal.Inc()
 	ctx.JSON(http.StatusOK, gin.H{"username": username})
 }
 

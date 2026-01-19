@@ -7,10 +7,18 @@ import (
 	"web-service-gin/middleware"
 	"web-service-gin/filemanager"
 	"os"
+	"web-service-gin/metrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
+	metrics.Init()
 	router := gin.Default()
+
+	// Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// Public routes
     router.GET("/albums", exercises.GetAlbums)
 	router.POST("/albums", exercises.PostAlbum)
 	router.POST("/users/register", users.AddUser)
