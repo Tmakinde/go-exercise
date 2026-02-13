@@ -9,9 +9,12 @@ import (
 	"web-service-gin/utils"
 	"fmt"
 	"web-service-gin/metrics"
+	"web-service-gin/redis"
 )
 
 var DB, _ = database.ConnectToDatabase()
+
+var rdb, _ = redis.ConnectToRedis()
 
 type User struct {
 	ID	   int    `json:"id"`
@@ -32,6 +35,12 @@ func AddUser(ctx *gin.Context) {
 	_, err := DB.Exec(query, newUser.Username, hashedPassword)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	redisErr := redis.SetValue(rdb, fmt.Sprintf("user:%s", newUser.Username), "exists")
+	if redisErr != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": redisErr.Error()})
 		return
 	}
 
